@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+*.py[cod]
+*.db
+*.db-*
+*.sqlite*
+*.jsonl
+*.log
+**/node_modules/
+frontend/dist/
+.sentinel-qa-*/
+.vscode/

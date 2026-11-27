@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sentinel
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      POSTGRES_DB: sentinelai
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - sentinel_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sentinel -d sentinelai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  sentinel_postgres_data:

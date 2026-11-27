@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');*{box-sizing:border-box}body{margin:0;background:#0b111c;color:#e8eef8;font-family:"DM Sans",sans-serif}.shell{display:flex;min-height:100vh}aside{width:238px;background:#0e1624;border-right:1px solid #253045;padding:30px 17px;position:relative;flex-shrink:0}.brand{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:1.1px;font-size:19px;margin-bottom:58px}.brand svg,.brand span{color:#5fe4bb}.sideLabel,.eyebrow{color:#708198;font-size:10px;letter-spacing:1.7px;font-weight:800}.sideLabel{padding-left:13px;margin-bottom:18px}.nav{display:flex;align-items:center;gap:13px;color:#8797ac;padding:14px 13px;font-size:13px;border-radius:8px;margin-bottom:7px}.nav.active{background:#193a3b;color:#70e8c5}.sideBottom{position:absolute;bottom:28px;left:29px;font-size:11px;line-height:1.8;color:#61728b}main{width:100%;padding:45px max(30px,4vw);max-width:1500px;margin:auto}header,.sectionHead,.reportTop{display:flex;justify-content:space-between;align-items:center;gap:20px}h1{font-size:30px;letter-spacing:-1px;margin:10px 0 8px}p{color:#8b9ab0;font-size:13px;margin:0;line-height:1.6}.live{border:1px solid #25463e;background:#132921;padding:9px 13px;border-radius:20px;color:#72dbb4;font-size:12px;white-space:nowrap}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#5de3b2;margin-right:8px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;margin:35px 0}.stat,section{border:1px solid #253246;background:#111c2b;border-radius:12px}.stat{padding:24px}.stat small,.risk small,.reportTop small{font-size:10px;color:#879ab1;letter-spacing:1.1px;font-weight:800}.stat strong{display:block;font-size:33px;margin:11px 0}.stat span{font-size:11px;color:#7f92a8}section{margin-top:20px;overflow:hidden}.sectionHead{padding:23px 25px;border-bottom:1px solid #253246}h2{font-size:16px;margin:0 0 5px}.pill{font-size:9px;letter-spacing:1px;color:#62d9b3;background:#15372f;padding:8px 11px;border-radius:5px}.tableWrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:12px;text-align:left}th{font-size:10px;letter-spacing:1px;color:#7890a9;background:#152234;padding:15px 23px}td{padding:17px 23px;border-top:1px solid #253246;white-space:nowrap}.mono{font-family:"JetBrains Mono",monospace;font-size:11px;color:#afbed0}.tag{font-size:10px;border-radius:4px;padding:6px 9px;text-transform:capitalize}.warn{background:#392b23;color:#ffc18c}.safe{background:#193c32;color:#8ce8bd}button{background:#1e524a;color:#8ff5d1;border:1px solid #286c60;border-radius:6px;padding:9px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;font-size:11px}button:hover{background:#2c6a5d}button:disabled{opacity:.4}.investigation{margin-bottom:40px}.empty{padding:55px;text-align:center;color:#7f92a8;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:13px}.reportTop{padding:24px 27px;background:#162236}.reportTop h3{font-size:17px;margin:8px 0 15px}.risk{text-align:right;flex-shrink:0}.risk strong{display:block;color:#ffb881;font-size:37px}.risk strong span{font-size:15px;color:#8896a8}.reportGrid{display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:25px}.reportGrid h4{font-size:13px;margin:0 0 17px}.evidence{display:flex;gap:11px;margin-bottom:15px;font-size:12px}.evidence svg{color:#e7aa7e;flex-shrink:0}.evidence b{display:block}.evidence b span{color:#e7aa7e}.evidence p{font-size:11px;margin-top:4px}.action{border:1px solid #304055;background:#19283a;border-radius:7px;padding:11px 12px;font-size:12px;margin-bottom:9px}.notice{font-size:11px;margin-top:15px}.error{padding:15px;background:#49292d;border-radius:7px;color:#ffc7c7;margin-top:15px}@media(max-width:900px){aside{display:none}main{padding:25px 15px}.stats,.reportGrid{grid-template-columns:1fr}header{align-items:flex-start}h1{font-size:23px}}
+
+.nav {
+  cursor: pointer;
+}
+
+.nav:hover {
+  background: rgba(45, 212, 191, 0.08);
+}
+
+.nav:focus-visible {
+  outline: 2px solid #2dd4bf;
+  outline-offset: 2px;
+}
+
+select {
+  background: #17283b;
+  color: #e5edf5;
+  border: 1px solid #30445b;
+  border-radius: 6px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+select:focus {
+  outline: 1px solid #2dd4bf;
+}
+
+button.nav {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-weight: inherit;
+  text-align: left;
+}
+
+button.nav.active {
+  background: #193a3b;
+}
+
+button.nav:hover {
+  background: #193a3b;
+}
