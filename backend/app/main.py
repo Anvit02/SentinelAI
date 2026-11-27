@@ -1,7 +1,7 @@
 
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Literal
 from uuid import uuid4
 
@@ -27,7 +27,8 @@ from sqlalchemy.orm import (
     Session,
 )
 
-from .auth_model import analyze_authentication
+from .anomaly_model import HISTORY_WINDOW, analyze_anomaly
+from .auth_model import AUTH_TYPES, analyze_authentication
 
 # ============================================================
 # DATABASE CONFIGURATION
@@ -258,7 +259,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="SentinelAI",
-    version="0.3.0",
+    version="0.3.1",
     lifespan=lifespan
 )
 
@@ -314,7 +315,8 @@ def serialize_event(e: Event):
 
 def serialize_investigation(
     i: Investigation,
-    e: Event
+    e: Event,
+    db: Session,
 ):
     return {
         "id": i.id,
@@ -335,6 +337,10 @@ def serialize_investigation(
             "not a calibrated probability."
         ),
         "authentication_analysis": analyze_authentication(e.type, e.failed_logins),
+        "anomaly_analysis": (
+            analyze_anomaly(e.type, e.failed_logins, recent_failure_count(e, db))
+            if e.type in AUTH_TYPES else None
+        ),
         "created_at": i.created_at,
     }
 
@@ -342,6 +348,22 @@ def serialize_investigation(
 # ============================================================
 # RULE-BASED THREAT DETECTION ENGINE
 # ============================================================
+
+def recent_failure_count(e: Event, db: Session) -> int:
+    timestamp = e.occurred_at
+    if timestamp.tzinfo is not None:
+        timestamp = timestamp.astimezone(timezone.utc)
+    return db.scalar(
+        select(func.count())
+        .select_from(Event)
+        .where(
+            Event.user == e.user,
+            Event.type == "failed_login",
+            Event.occurred_at >= timestamp - HISTORY_WINDOW,
+            Event.occurred_at <= timestamp,
+        )
+    ) or 0
+
 
 def detect(e: Event, db: Session):
 
@@ -426,23 +448,7 @@ def detect(e: Event, db: Session):
     # Repeated failed logins in a 15-minute window
     # --------------------------------------------------------
 
-    since = (
-        e.occurred_at.replace(tzinfo=None)
-        - timedelta(minutes=15)
-    )
-
-    count = db.scalar(
-        select(func.count())
-        .select_from(Event)
-        .where(
-            Event.user == e.user,
-            Event.type == "failed_login",
-            Event.occurred_at >= since,
-            Event.occurred_at <= e.occurred_at.replace(
-                tzinfo=None
-            ),
-        )
-    ) or 0
+    count = recent_failure_count(e, db)
 
     if count >= 5:
         add(
@@ -541,15 +547,15 @@ def ingest_event(
     payload: EventInput,
     db: Session = Depends(get_db)
 ):
+    occurred_at = payload.occurred_at or datetime.now(timezone.utc)
+    if occurred_at.tzinfo is None:
+        occurred_at = occurred_at.replace(tzinfo=timezone.utc)
     e = Event(
         id="evt-" + uuid4().hex[:12],
         **payload.model_dump(
             exclude={"occurred_at"}
         ),
-        occurred_at=(
-            payload.occurred_at
-            or datetime.now(timezone.utc)
-        ),
+        occurred_at=occurred_at.astimezone(timezone.utc),
     )
 
     db.add(e)
@@ -588,7 +594,7 @@ def run_investigation(
 
     # Reuse the latest existing report.
     if existing:
-        return serialize_investigation(existing, e)
+        return serialize_investigation(existing, e, db)
 
     # Run the threat detection engine.
     score, severity, evidence, actions = detect(e, db)
@@ -608,7 +614,7 @@ def run_investigation(
     db.add(i)
     db.commit()
 
-    return serialize_investigation(i, e)
+    return serialize_investigation(i, e, db)
 
 
 @app.get("/api/investigations")
@@ -630,7 +636,7 @@ def list_investigations(
 
         if e:
             results.append(
-                serialize_investigation(i, e)
+                serialize_investigation(i, e, db)
             )
 
     return results
@@ -661,7 +667,7 @@ def get_investigation(
             detail="Associated event not found"
         )
 
-    return serialize_investigation(i, e)
+    return serialize_investigation(i, e, db)
 
 
 # ============================================================
@@ -694,7 +700,7 @@ def update_investigation(
             detail="Associated event not found"
         )
 
-    return serialize_investigation(i, e)
+    return serialize_investigation(i, e, db)
 
 
 # ============================================================

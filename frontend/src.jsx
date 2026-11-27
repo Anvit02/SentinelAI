@@ -21,7 +21,7 @@ import "./style.css";
 // API CONFIGURATION
 // ============================================================
 
-const API = "http://127.0.0.1:8000";
+const API = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
 
 
 // ============================================================
@@ -127,7 +127,7 @@ function App() {
     } catch {
       throw new Error(
         "Unable to connect to FastAPI. " +
-        "Make sure the backend is running on port 8000."
+        "Check that the backend is running and reachable."
       );
     }
 
@@ -989,6 +989,26 @@ function App() {
                           {Math.round(report.authentication_analysis.suspicion_score * 100)}% synthetic suspicion score
                         </p>
                         <p>Trained on synthetic retry counts. Analyst review required.</p>
+                      </div>
+                    </section>
+                  )}
+
+                  {report.anomaly_analysis && (
+                    <section className="reportTop" aria-label="Anomaly detection">
+                      <div>
+                        <h4>Anomaly detection</h4>
+                        <p>
+                          {report.anomaly_analysis.flagged ? "Unusual activity" : "Within baseline"}
+                          {" · Isolation Forest score "}
+                          {report.anomaly_analysis.anomaly_score.toFixed(4)}
+                          {" · Threshold "}
+                          {report.anomaly_analysis.threshold.toFixed(4)}
+                        </p>
+                        <p>
+                          {report.anomaly_analysis.features.failed_logins} failed login attempts in this event
+                          {" · "}
+                          {report.anomaly_analysis.features.recent_failure_events} failure events for this account in 15 minutes
+                        </p>
                       </div>
                     </section>
                   )}

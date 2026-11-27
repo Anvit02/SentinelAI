@@ -2,7 +2,7 @@
 
 A local-first security investigation system with a FastAPI backend, deterministic risk scoring, persistent investigation reports, and a React dashboard.
 
-**Status · v0.3 prototype in active development.** The demo uses synthetic security events.
+**Status · v0.3.1 prototype in active development.** The demo uses synthetic security events.
 
 ## Run the backend
 
@@ -74,7 +74,8 @@ Use the `event` field alone as detector input to keep labels out of scoring.
 
 From `backend`, run `python -m app.evaluate_detection`. The evaluator compares
 the existing rule engine at 25 points against a supervised retry-count
-histogram model at a score of 0.5. It trains on 5,000 synthetic events and
+histogram model at a score of 0.5, and an unsupervised Isolation Forest.
+Both models train on 5,000 synthetic events and the evaluator
 evaluates chronologically on 2,000 events generated with a different seed.
 The run reports confusion counts, precision, recall, and F1. It uses
 an in-memory database.
@@ -83,6 +84,15 @@ an in-memory database.
 | --- | ---: | ---: | ---: |
 | Existing rules | 100.0% | 44.3% | 61.4% |
 | Authentication model | 83.1% | 56.3% | 67.1% |
+| Isolation Forest | 58.9% | 48.4% | 53.1% |
+
+Isolation Forest uses log-transformed failed attempts and the account's
+count of failed-login events in the 15 minutes ending at that event. It
+fits without labels and uses a 10% training contamination setting.
+Higher scores indicate more unusual activity. On the held-out synthetic
+set, ROC AUC was 0.875 and average precision was 0.403. The report
+displays the score, threshold, and feature values for analyst review.
+Backfilled telemetry can change historical features when reports reopen.
 
 Authentication investigation reports show the model's result alongside the
 rule score. The model reads the retry count and learns from synthetic labels.
@@ -93,7 +103,8 @@ from the event, so existing reports work without a database migration.
 
 ## Roadmap
 
-1. Add investigation tooling and analyst approval.
-2. Add audit trails and deployment support.
+The next milestone is supervised threat classification. Later milestones
+cover hybrid scoring and explainability, an investigation copilot, retrieval,
+streaming, deployment, and portfolio preparation.
 
 **Safety:** All identities and events are synthetic. Recommendations never automatically block accounts or IPs.

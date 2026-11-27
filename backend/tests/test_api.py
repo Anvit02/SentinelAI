@@ -12,6 +12,7 @@ def test_end_to_end():
         assert critical.json()['risk_score'] == 94
         assert critical.json()['auto_actions_executed'] is False
         assert critical.json()['authentication_analysis'] is None
+        assert critical.json()['anomaly_analysis'] is None
         new = client.post('/api/events', json={'user':'tester@example.test','type':'failed_login','ip':'192.0.2.10','country':'US'})
         assert new.status_code == 201
         event_id = new.json()['id']
@@ -23,6 +24,11 @@ def test_end_to_end():
         assert 0 <= analysis['suspicion_score'] < 0.5
         saved = client.get('/api/investigations/' + report.json()['id'])
         assert saved.json()['authentication_analysis'] == analysis
+        anomaly = report.json()['anomaly_analysis']
+        assert anomaly['model_version'] == 'auth-isolation-forest-v1'
+        assert anomaly['features'] == {'failed_logins': 0, 'recent_failure_events': 1}
+        assert 0 < anomaly['anomaly_score'] < 1
+        assert saved.json()['anomaly_analysis'] == anomaly
         assert client.post('/api/investigations/' + event_id).json()['id'] == report.json()['id']
         assert client.patch('/api/investigations/' + critical.json()['id'], json={'status':'resolved'}).json()['status'] == 'resolved'
         assert client.get('/api/stats').json()['investigations'] >= 2
