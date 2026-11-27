@@ -1,4 +1,4 @@
-# SentinelAI — AI Security Operations Agent
+# SentinelAI - AI Security Operations Agent
 
 A local-first security investigation system with a FastAPI backend, deterministic risk scoring, persistent investigation reports, and a React dashboard.
 
